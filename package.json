@@ -5,7 +5,9 @@
   "exports": {
     ".": "./index.js",
     "./package": "./package.json",
-    "./constants": "./lib/constants.js"
+    "./constants": "./lib/constants.js",
+    "./message-channel": "./lib/message-channel.js",
+    "./message-port": "./lib/message-port.js"
   },
   "files": [
     "index.js",

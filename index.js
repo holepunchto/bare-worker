@@ -1,5 +1,6 @@
 /* global Bare */
 const Channel = require('bare-channel')
+const MessageChannel = require('./lib/message-channel')
 const MessagePort = require('./lib/message-port')
 const constants = require('./lib/constants')
 const { Thread } = Bare
@@ -10,10 +11,8 @@ module.exports = exports = class Worker extends MessagePort {
       channel = new Channel()
     } = opts
 
-    super(channel.connect())
+    super(channel, channel.connect())
 
-    this._state = 0
-    this._channel = channel
     this._terminating = null
 
     this._thread = new Thread(require.resolve('./lib/thread'), {
@@ -57,6 +56,9 @@ module.exports = exports = class Worker extends MessagePort {
 }
 
 exports.Worker = exports
+
+exports.MessageChannel = MessageChannel
+exports.MessagePort = MessagePort
 
 exports.isMainThread = Thread.isMainThread
 
