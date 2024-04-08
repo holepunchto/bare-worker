@@ -12,6 +12,27 @@ test('basic', (t) => {
     .on('exit', (exitCode) => t.is(exitCode, 0))
 })
 
+test('message', (t) => {
+  t.plan(2)
+
+  const worker = new Worker(require.resolve('./test/fixtures/echo'))
+
+  worker
+    .on('message', (message) => t.is(message, 'Hello worker'))
+    .on('exit', (exitCode) => t.is(exitCode, 0))
+    .postMessage('Hello worker')
+})
+
+test('terminate', (t) => {
+  t.plan(1)
+
+  const worker = new Worker(require.resolve('./test/fixtures/timeout'))
+
+  worker
+    .on('exit', (exitCode) => t.is(exitCode, 0))
+    .terminate()
+})
+
 test('uncaught exception', (t) => {
   t.plan(2)
 

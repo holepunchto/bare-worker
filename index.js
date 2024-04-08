@@ -7,20 +7,18 @@ const { Thread } = Bare
 
 module.exports = exports = class Worker extends MessagePort {
   constructor (filename, opts = {}) {
-    const {
-      channel = new Channel()
-    } = opts
+    const channel = new Channel()
 
     super(channel, channel.connect())
 
-    this._terminating = null
-
-    this._thread = new Thread(require.resolve('./lib/thread'), {
+    this._thread = new Thread(require.resolve('./lib/worker-thread'), {
       data: {
         channel: channel.handle,
         filename
       }
     })
+
+    this._terminating = null
   }
 
   terminate () {
@@ -47,6 +45,8 @@ module.exports = exports = class Worker extends MessagePort {
     await this._port.close()
 
     this._state |= constants.state.EXITED
+    this._thread.join()
+
     this.emit('exit', exitCode)
   }
 
