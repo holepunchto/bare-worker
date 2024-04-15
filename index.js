@@ -27,6 +27,14 @@ module.exports = exports = class Worker extends MessagePort {
     this._terminate()
   }
 
+  [Symbol.for('bare.inspect')] () {
+    return {
+      __proto__: { constructor: Worker },
+
+      detached: this.detached
+    }
+  }
+
   async _ononline () {
     await super._ononline()
 

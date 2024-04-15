@@ -6,6 +6,8 @@ test('basic', (t) => {
 
   const worker = new Worker(require.resolve('./test/fixtures/hello'))
 
+  t.comment(worker)
+
   worker
     .on('online', () => t.pass())
     .on('message', (message) => t.is(message, 'Hello worker'))
