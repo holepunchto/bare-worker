@@ -53,7 +53,7 @@ test('exception with uncaught handler', (t) => {
     .on('exit', (exitCode) => t.is(exitCode, 0))
 })
 
-test.skip('transfer message port', (t) => {
+test('transfer message port', (t) => {
   t.plan(2)
 
   const worker = new Worker(require.resolve('./test/fixtures/transfer-message-port'))

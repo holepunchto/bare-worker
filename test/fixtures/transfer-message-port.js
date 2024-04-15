@@ -1,5 +1,5 @@
 const { parentPort } = require('bare-worker')
 
-parentPort.on('message', (port) => {
-  port.on('message', (msg) => port.postMessage(msg))
+parentPort.once('message', (port) => {
+  port.once('message', (msg) => port.postMessage(msg))
 })
