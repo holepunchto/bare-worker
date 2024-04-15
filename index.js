@@ -16,7 +16,8 @@ module.exports = exports = class Worker extends MessagePort {
     this._thread = new Thread(require.resolve('./lib/worker-thread'), {
       data: {
         channel: channel.handle,
-        filename
+        filename,
+        data: opts.workerData
       }
     })
 
@@ -64,3 +65,5 @@ exports.MessagePort = MessagePort
 exports.isMainThread = Thread.isMainThread
 
 exports.parentPort = null
+
+exports.workerData = null
