@@ -1,3 +1,3 @@
-const worker = require('bare-worker')
+const { parentPort } = require('bare-worker')
 
-worker.parentPort.postMessage('Hello worker')
+parentPort.postMessage('Hello worker')

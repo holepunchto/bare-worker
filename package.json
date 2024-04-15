@@ -6,6 +6,7 @@
     ".": "./index.js",
     "./package": "./package.json",
     "./constants": "./lib/constants.js",
+    "./errors": "./lib/errors.js",
     "./message-channel": "./lib/message-channel.js",
     "./message-port": "./lib/message-port.js"
   },
@@ -30,7 +31,7 @@
     "bare": ">=1.2.0"
   },
   "dependencies": {
-    "bare-channel": "^4.0.1",
+    "bare-channel": "^4.1.0",
     "bare-events": "^2.2.1",
     "bare-module": "^3.1.9",
     "bare-os": "^2.2.1",

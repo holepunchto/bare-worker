@@ -7,9 +7,11 @@ const { Thread } = Bare
 
 module.exports = exports = class Worker extends MessagePort {
   constructor (filename, opts = {}) {
-    const channel = new Channel()
+    const channel = new Channel({ interfaces: [MessagePort] })
 
-    super(channel, channel.connect())
+    super(channel)
+
+    this._state = constants.state.REFED
 
     this._thread = new Thread(require.resolve('./lib/worker-thread'), {
       data: {
@@ -18,39 +20,30 @@ module.exports = exports = class Worker extends MessagePort {
       }
     })
 
-    this._terminating = null
+    this.start()
   }
 
   terminate () {
-    if (this._state & constants.state.EXITED) return
-
-    if (this._terminating) return this._terminating
-
-    this._state |= constants.state.TERMINATING
-    this._terminating = this._terminate()
-
-    return this._terminating
+    this._terminate()
   }
 
-  async _terminate () {
-    await this._port.write({ type: constants.message.TERMINATE })
-  }
+  async _ononline () {
+    await super._ononline()
 
-  _ononline () {
-    this._state |= constants.state.ONLINE
     this.emit('online')
   }
 
   async _onexit (exitCode) {
-    await this._port.close()
+    await super._onexit()
 
-    this._state |= constants.state.EXITED
     this._thread.join()
 
     this.emit('exit', exitCode)
   }
 
-  _onerror (err) {
+  async _onerror (err) {
+    await super._onerror()
+
     this.emit('error', err)
   }
 }

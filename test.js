@@ -52,3 +52,19 @@ test('exception with uncaught handler', (t) => {
     .on('message', (err) => t.is(err.message, 'error'))
     .on('exit', (exitCode) => t.is(exitCode, 0))
 })
+
+test.skip('transfer message port', (t) => {
+  t.plan(2)
+
+  const worker = new Worker(require.resolve('./test/fixtures/transfer-message-port'))
+
+  const channel = new Worker.MessageChannel()
+
+  channel.port1
+    .on('message', (message) => t.is(message, 'Hello worker'))
+    .postMessage('Hello worker')
+
+  worker
+    .on('exit', (exitCode) => t.is(exitCode, 0))
+    .postMessage(channel.port2, [channel.port2])
+})
