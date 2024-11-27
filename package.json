@@ -27,11 +27,8 @@
     "url": "https://github.com/holepunchto/bare-worker/issues"
   },
   "homepage": "https://github.com/holepunchto/bare-worker#readme",
-  "engines": {
-    "bare": ">=1.2.0"
-  },
   "dependencies": {
-    "bare-channel": "^4.1.0",
+    "bare-channel": "^5.0.1",
     "bare-events": "^2.2.1",
     "bare-module": "^4.0.0",
     "bare-os": "^3.0.1",

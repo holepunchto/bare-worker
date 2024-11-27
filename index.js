@@ -21,7 +21,9 @@ module.exports = exports = class Worker extends MessagePort {
       }
     })
 
-    this.start()
+    this._exitCode = 0
+
+    this.on('close', this._onexit).start()
   }
 
   terminate() {
@@ -36,24 +38,9 @@ module.exports = exports = class Worker extends MessagePort {
     }
   }
 
-  async _ononline() {
-    await super._ononline()
-
-    this.emit('online')
-  }
-
-  async _onexit(exitCode) {
-    await super._onexit()
-
+  _onexit() {
     this._thread.join()
-
-    this.emit('exit', exitCode)
-  }
-
-  async _onerror(err) {
-    await super._onerror()
-
-    this.emit('error', err)
+    this.emit('exit', this._exitCode)
   }
 }
 
