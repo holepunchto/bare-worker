@@ -30,9 +30,7 @@ test('terminate', (t) => {
 
   const worker = new Worker(require.resolve('./test/fixtures/timeout'))
 
-  worker
-    .on('exit', (exitCode) => t.is(exitCode, 0))
-    .terminate()
+  worker.on('exit', (exitCode) => t.is(exitCode, 0)).terminate()
 })
 
 test('uncaught exception', (t) => {
@@ -48,7 +46,9 @@ test('uncaught exception', (t) => {
 test('exception with uncaught handler', (t) => {
   t.plan(2)
 
-  const worker = new Worker(require.resolve('./test/fixtures/throw-with-uncaught-handler'))
+  const worker = new Worker(
+    require.resolve('./test/fixtures/throw-with-uncaught-handler')
+  )
 
   worker
     .on('message', (err) => t.is(err.message, 'error'))
@@ -58,7 +58,9 @@ test('exception with uncaught handler', (t) => {
 test('transfer message port', (t) => {
   t.plan(2)
 
-  const worker = new Worker(require.resolve('./test/fixtures/transfer-message-port'))
+  const worker = new Worker(
+    require.resolve('./test/fixtures/transfer-message-port')
+  )
 
   const channel = new Worker.MessageChannel()
 

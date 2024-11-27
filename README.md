@@ -8,17 +8,15 @@ npm i bare-worker
 
 ## Usage
 
-``` js
+```js
 const Worker = require('bare-worker')
 
 if (Worker.isMainThread) {
   const worker = new Worker(__filename)
 
-  worker
-    .on('message', console.log)
-    .on('exit', (code) => {
-      console.log('Worker exited with code', code)
-    })
+  worker.on('message', console.log).on('exit', (code) => {
+    console.log('Worker exited with code', code)
+  })
 } else {
   Worker.parentPort.postMessage('Hello worker')
 }
