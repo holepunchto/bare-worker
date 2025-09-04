@@ -28,7 +28,7 @@
   },
   "homepage": "https://github.com/holepunchto/bare-worker#readme",
   "dependencies": {
-    "bare-channel": "^5.0.1",
+    "bare-channel": "^5.0.4",
     "bare-events": "^2.2.1",
     "bare-module": "^4.0.0",
     "bare-os": "^3.0.1",
