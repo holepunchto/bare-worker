@@ -1,4 +1,3 @@
-/* global Bare */
 const { parentPort } = require('bare-worker')
 
 Bare.on('uncaughtException', (err) => {

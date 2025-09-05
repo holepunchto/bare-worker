@@ -1,4 +1,3 @@
-/* global Bare */
 const Channel = require('bare-channel')
 const MessageChannel = require('./lib/message-channel')
 const MessagePort = require('./lib/message-port')
