@@ -16,7 +16,8 @@ module.exports = exports = class Worker extends MessagePort {
       data: {
         channel: channel.handle,
         filename,
-        data: opts.workerData
+        data: opts.workerData,
+        imports: module.imports
       }
     })
 
