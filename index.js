@@ -31,7 +31,7 @@ module.exports = exports = class Worker extends MessagePort {
 
     const { promise, resolve } = Promise.withResolvers()
 
-    this.on('exit', resolve)
+    this.once('exit', resolve)
 
     this._terminate()
 
