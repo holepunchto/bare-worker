@@ -27,6 +27,8 @@ module.exports = exports = class Worker extends MessagePort {
   }
 
   async terminate() {
+    if (this._state & constants.state.CLOSED) return this._exitCode
+
     const { promise, resolve } = Promise.withResolvers()
 
     this.on('exit', resolve)
