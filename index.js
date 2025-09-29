@@ -24,7 +24,7 @@ module.exports = exports = class Worker extends MessagePort {
     this._exitCode = 0
     this._terminating = null
 
-    this.on('close', this._onexit).start()
+    this.start()
   }
 
   terminate() {
@@ -48,7 +48,9 @@ module.exports = exports = class Worker extends MessagePort {
     }
   }
 
-  _onexit() {
+  _onclose() {
+    super._onclose()
+
     this._thread.join()
 
     if (this._terminating !== null) this._terminating.resolve(this._exitCode)
