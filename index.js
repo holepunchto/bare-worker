@@ -27,10 +27,12 @@ module.exports = exports = class Worker extends MessagePort {
     this.on('close', this._onexit).start()
   }
 
-  async terminate() {
+  terminate() {
     if (this._terminating !== null) return this._terminating.promise
 
-    if (this._state & constants.state.CLOSED) return this._exitCode
+    if (this._state & constants.state.CLOSED) {
+      return Promise.resolve(this._exitCode)
+    }
 
     this._terminating = Promise.withResolvers()
     this._terminate()
