@@ -22,20 +22,20 @@ module.exports = exports = class Worker extends MessagePort {
     })
 
     this._exitCode = 0
+    this._terminating = null
 
     this.on('close', this._onexit).start()
   }
 
   async terminate() {
+    if (this._terminating !== null) return this._terminating.promise
+
     if (this._state & constants.state.CLOSED) return this._exitCode
 
-    const { promise, resolve } = Promise.withResolvers()
-
-    this.once('exit', resolve)
-
+    this._terminating = Promise.withResolvers()
     this._terminate()
 
-    return promise
+    return this._terminating.promise
   }
 
   [Symbol.for('bare.inspect')]() {
@@ -48,6 +48,9 @@ module.exports = exports = class Worker extends MessagePort {
 
   _onexit() {
     this._thread.join()
+
+    if (this._terminating !== null) this._terminating.resolve(this._exitCode)
+
     this.emit('exit', this._exitCode)
   }
 }
