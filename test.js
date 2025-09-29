@@ -25,12 +25,14 @@ test('message', (t) => {
     .postMessage('Hello worker')
 })
 
-test('terminate', (t) => {
+test('terminate', async (t) => {
   t.plan(1)
 
   const worker = new Worker(require.resolve('./test/fixtures/timeout'))
 
-  worker.on('exit', (exitCode) => t.is(exitCode, 0)).terminate()
+  const exitCode = await worker.terminate()
+
+  t.is(exitCode, 0)
 })
 
 test('uncaught exception', (t) => {
