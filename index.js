@@ -2,6 +2,7 @@ const Channel = require('bare-channel')
 const MessageChannel = require('./lib/message-channel')
 const MessagePort = require('./lib/message-port')
 const constants = require('./lib/constants')
+const preloads = require('./lib/preloads')
 const { Thread } = Bare
 
 module.exports = exports = class Worker extends MessagePort {
@@ -17,7 +18,8 @@ module.exports = exports = class Worker extends MessagePort {
         channel: channel.handle,
         filename,
         data: opts.workerData,
-        imports: module.imports
+        imports: module.imports,
+        preloads
       }
     })
 
@@ -69,3 +71,7 @@ exports.isMainThread = Thread.isMainThread
 exports.parentPort = null
 
 exports.workerData = null
+
+exports.preload = function preload(filename) {
+  preloads.add(filename)
+}
