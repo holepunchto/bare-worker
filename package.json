@@ -30,7 +30,7 @@
   "dependencies": {
     "bare-channel": "^5.1.5",
     "bare-events": "^2.2.1",
-    "bare-module": "^5.0.0",
+    "bare-module": "^6.0.1",
     "bare-os": "^3.0.1",
     "bare-url": "^2.0.1"
   },
