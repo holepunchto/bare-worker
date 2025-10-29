@@ -5,7 +5,7 @@ const MessagePort = require('./lib/message-port')
 const constants = require('./lib/constants')
 const preloads = require('./lib/preloads')
 
-const worker = Thread.prepare(require.resolve('./lib/worker-thread'))
+const worker = Thread.prepare(require.resolve('./lib/worker-thread'), { shared: true })
 
 module.exports = exports = class Worker extends MessagePort {
   constructor(entry, opts = {}) {
@@ -19,7 +19,7 @@ module.exports = exports = class Worker extends MessagePort {
 
     this._thread = new Thread(worker, {
       data: {
-        source: Thread.prepare(entry),
+        source: Thread.prepare(entry, { shared: true }),
         channel: channel.handle,
         workerData,
         preloads
@@ -76,5 +76,5 @@ exports.parentPort = null
 exports.workerData = null
 
 exports.preload = function preload(entry) {
-  preloads.set(entry, Thread.prepare(entry))
+  preloads.set(entry, Thread.prepare(entry, { shared: true }))
 }
