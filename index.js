@@ -1,24 +1,27 @@
+const Thread = require('bare-thread')
 const Channel = require('bare-channel')
 const MessageChannel = require('./lib/message-channel')
 const MessagePort = require('./lib/message-port')
 const constants = require('./lib/constants')
 const preloads = require('./lib/preloads')
-const { Thread } = Bare
+
+const worker = Thread.prepare(require.resolve('./lib/worker-thread'))
 
 module.exports = exports = class Worker extends MessagePort {
-  constructor(filename, opts = {}) {
+  constructor(entry, opts = {}) {
+    const { workerData } = opts
+
     const channel = new Channel({ interfaces: [MessagePort] })
 
     super(channel)
 
     this._state = constants.state.REFED
 
-    this._thread = new Thread(require.resolve('./lib/worker-thread'), {
+    this._thread = new Thread(worker, {
       data: {
+        source: Thread.prepare(entry),
         channel: channel.handle,
-        filename,
-        data: opts.workerData,
-        imports: module.imports,
+        workerData,
         preloads
       }
     })
@@ -72,6 +75,6 @@ exports.parentPort = null
 
 exports.workerData = null
 
-exports.preload = function preload(filename) {
-  preloads.add(filename)
+exports.preload = function preload(entry) {
+  preloads.set(entry, Thread.prepare(entry))
 }
