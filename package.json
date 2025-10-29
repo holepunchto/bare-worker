@@ -33,7 +33,7 @@
     "bare-channel": "^5.1.5",
     "bare-events": "^2.2.1",
     "bare-module": "^6.0.1",
-    "bare-thread": "^1.1.0"
+    "bare-thread": "^1.1.1"
   },
   "devDependencies": {
     "brittle": "^3.2.1",
