@@ -1,9 +1,19 @@
 const Thread = require('bare-thread')
 const Channel = require('bare-channel')
-const MessageChannel = require('./lib/message-channel')
-const MessagePort = require('./lib/message-port')
+const WorkerState = require('./lib/worker-state')
 const constants = require('./lib/constants')
 const preloads = require('./lib/preloads')
+
+let MessageChannel
+let MessagePort
+
+if (WorkerState.parent) {
+  MessageChannel = WorkerState.parent.MessageChannel
+  MessagePort = WorkerState.parent.MessagePort
+} else {
+  MessageChannel = require('./lib/message-channel')
+  MessagePort = require('./lib/message-port')
+}
 
 const worker = Thread.prepare(require.resolve('./lib/worker-thread'), { shared: true })
 
@@ -21,7 +31,7 @@ module.exports = exports = class Worker extends MessagePort {
       data: {
         source: Thread.prepare(entry, { shared: true }),
         channel: channel.handle,
-        workerData,
+        data: workerData,
         preloads
       }
     })
@@ -71,10 +81,14 @@ exports.MessagePort = MessagePort
 
 exports.isMainThread = Thread.isMainThread
 
-exports.parentPort = null
-
-exports.workerData = null
-
 exports.preload = function preload(entry) {
   preloads.set(entry, Thread.prepare(entry, { shared: true }))
+}
+
+if (WorkerState.parent) {
+  exports.parentPort = WorkerState.parent.port
+  exports.workerData = WorkerState.parent.data
+} else {
+  exports.parentPort = null
+  exports.workerData = null
 }
