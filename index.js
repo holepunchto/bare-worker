@@ -2,7 +2,8 @@ const Thread = require('bare-thread')
 const Channel = require('bare-channel')
 const WorkerState = require('./lib/worker-state')
 const constants = require('./lib/constants')
-const preloads = require('./lib/preloads')
+
+const preloads = new Map()
 
 let MessageChannel
 let MessagePort
@@ -10,6 +11,10 @@ let MessagePort
 if (WorkerState.parent) {
   MessageChannel = WorkerState.parent.MessageChannel
   MessagePort = WorkerState.parent.MessagePort
+
+  for (const [entry, source] of WorkerState.parent.preloads) {
+    preloads.set(entry, source)
+  }
 } else {
   MessageChannel = require('./lib/message-channel')
   MessagePort = require('./lib/message-port')
