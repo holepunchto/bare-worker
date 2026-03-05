@@ -59,6 +59,10 @@ module.exports = exports = class Worker extends MessagePort {
     return this._terminating.promise
   }
 
+  async [Symbol.asyncDispose]() {
+    await this.terminate()
+  }
+
   [Symbol.for('bare.inspect')]() {
     return {
       __proto__: { constructor: Worker },
