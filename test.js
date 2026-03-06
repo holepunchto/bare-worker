@@ -68,3 +68,15 @@ test('transfer message port', (t) => {
 
   worker.on('exit', (exitCode) => t.is(exitCode, 0)).postMessage(channel.port2, [channel.port2])
 })
+
+test('message port ref, unref and hasRef', (t) => {
+  t.plan(2)
+
+  const port = new Worker.MessageChannel().port1
+
+  port.ref()
+  t.is(port.hasRef(), true)
+
+  port.unref()
+  t.is(port.hasRef(), false)
+})
