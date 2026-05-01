@@ -69,6 +69,27 @@ test('transfer message port', (t) => {
   worker.on('exit', (exitCode) => t.is(exitCode, 0)).postMessage(channel.port2, [channel.port2])
 })
 
+test('environment data', (t) => {
+  t.plan(3)
+
+  const { getEnvironmentData, setEnvironmentData } = Worker
+
+  setEnvironmentData('foo', 'bar')
+  setEnvironmentData('hello', { value: 'world' })
+
+  t.is(getEnvironmentData('foo'), 'bar')
+
+  const worker = new Worker(require.resolve('./test/fixtures/env-data'))
+
+  setEnvironmentData('foo')
+
+  const expectedData = { foo: 'bar', hello: { value: 'world' }, unknown: undefined }
+
+  worker
+    .on('message', (envData) => t.alike(envData, expectedData))
+    .on('exit', (exitCode) => t.is(exitCode, 0))
+})
+
 test('message port ref, unref and hasRef', (t) => {
   t.plan(2)
 

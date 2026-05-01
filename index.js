@@ -7,6 +7,7 @@ const constants = require('./lib/constants')
 
 const preloads = new Map()
 
+let environmentData = new Map()
 let parentPort = null
 let workerData = null
 
@@ -17,6 +18,7 @@ if (WorkerState.parent) {
 
   parentPort = WorkerState.parent.port
   workerData = WorkerState.parent.data
+  environmentData = WorkerState.parent.environmentData
 }
 
 const worker = Thread.prepare(require.resolve('./lib/worker-thread'), { shared: true })
@@ -36,7 +38,8 @@ module.exports = exports = class Worker extends MessagePort {
         source: Thread.prepare(entry, { shared: true }),
         channel: channel.handle,
         data: workerData,
-        preloads
+        preloads,
+        environmentData
       }
     })
 
@@ -80,6 +83,14 @@ module.exports = exports = class Worker extends MessagePort {
 
     this.emit('exit', this._exitCode)
   }
+}
+
+exports.setEnvironmentData = function setEnvironmentData(key, value) {
+  environmentData.set(key, value)
+}
+
+exports.getEnvironmentData = function getEnvironmentData(key) {
+  return environmentData.get(key)
 }
 
 exports.Worker = exports
