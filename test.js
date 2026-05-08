@@ -14,6 +14,16 @@ test('basic', (t) => {
     .on('exit', (exitCode) => t.is(exitCode, 0))
 })
 
+test('relative path', (t) => {
+  t.plan(1)
+
+  const worker = new Worker('./test/fixtures/hello.js')
+
+  t.comment(worker)
+
+  worker.on('exit', (exitCode) => t.is(exitCode, 0))
+})
+
 test('message', (t) => {
   t.plan(2)
 
