@@ -1,5 +1,7 @@
 const Thread = require('bare-thread')
 const Channel = require('bare-channel')
+const path = require('bare-path')
+const os = require('bare-os')
 const WorkerState = require('./lib/worker-state')
 const MessageChannel = require('./lib/message-channel')
 const MessagePort = require('./lib/message-port')
@@ -33,9 +35,11 @@ module.exports = exports = class Worker extends MessagePort {
 
     this._state = constants.state.REFED
 
+    const resolvedEntry = resolveEntry(entry)
+
     this._thread = new Thread(worker, {
       data: {
-        source: Thread.prepare(entry, { shared: true }),
+        source: Thread.prepare(resolvedEntry, { shared: true }),
         channel: channel.handle,
         data: workerData,
         preloads,
@@ -104,5 +108,16 @@ exports.workerData = workerData
 exports.isMainThread = Thread.isMainThread
 
 exports.preload = function preload(entry) {
-  preloads.set(entry, Thread.prepare(entry, { shared: true }))
+  const resolvedEntry = resolveEntry(entry)
+
+  preloads.set(resolvedEntry, Thread.prepare(resolvedEntry, { shared: true }))
+}
+
+function resolveEntry(entry) {
+  if (typeof entry !== 'string') return entry
+
+  // Dot-relative filesystem paths should resolve from cwd.
+  if (/^(?:\.{1,2}(?:[\\/]|$))/.test(entry)) return path.resolve(os.cwd(), entry)
+
+  return entry
 }
