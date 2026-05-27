@@ -111,3 +111,11 @@ test('message port ref, unref and hasRef', (t) => {
   port.unref()
   t.is(port.hasRef(), false)
 })
+
+test('dynamic import', (t) => {
+  t.plan(2)
+
+  const worker = new Worker(require.resolve('./test/fixtures/dynamic-import'))
+
+  worker.on('message', (message) => t.is(message, 42)).on('exit', (exitCode) => t.is(exitCode, 0))
+})
