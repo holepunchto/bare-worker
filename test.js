@@ -112,7 +112,7 @@ test('message port ref, unref and hasRef', (t) => {
   t.is(port.hasRef(), false)
 })
 
-test('class identity matches WorkerState', (t) => {
+test('class identity matches', (t) => {
   t.plan(4)
 
   const worker = new Worker(require.resolve('./test/fixtures/identity'))
