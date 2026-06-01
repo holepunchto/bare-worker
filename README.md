@@ -22,6 +22,12 @@ if (Worker.isMainThread) {
 }
 ```
 
+## Notes
+
+### `import()` Support
+
+Since version `4.1.1`, the dynamic import syntax is no longer supported.
+
 ## License
 
 Apache-2.0
