@@ -112,6 +112,20 @@ test('message port ref, unref and hasRef', (t) => {
   t.is(port.hasRef(), false)
 })
 
+test('class identity matches WorkerState', (t) => {
+  t.plan(4)
+
+  const worker = new Worker(require.resolve('./test/fixtures/identity'))
+
+  worker
+    .on('message', (message) => {
+      t.is(message.parentPortIsMessagePort, true)
+      t.is(message.channelPort1IsMessagePort, true)
+      t.is(message.channelIsMessageChannel, true)
+    })
+    .on('exit', (exitCode) => t.is(exitCode, 0))
+})
+
 test('dynamic import()', (t) => {
   t.plan(3)
 
