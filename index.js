@@ -35,12 +35,11 @@ module.exports = exports = class Worker extends MessagePort {
 
     this._thread = new Thread(worker, {
       data: {
+        source: Thread.prepare(entry, { shared: true }),
         channel: channel.handle,
         data: workerData,
-        environmentData,
-        imports: module.imports,
         preloads,
-        source: Thread.prepare(entry, { shared: true })
+        environmentData
       }
     })
 
