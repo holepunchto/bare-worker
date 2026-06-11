@@ -3,6 +3,7 @@ const Channel = require('bare-channel')
 const WorkerState = require('./lib/worker-state')
 const MessageChannel = require('./lib/message-channel')
 const MessagePort = require('./lib/message-port')
+const BroadcastChannel = require('./lib/broadcast-channel')
 const constants = require('./lib/constants')
 
 const preloads = new Map()
@@ -39,7 +40,8 @@ module.exports = exports = class Worker extends MessagePort {
         channel: channel.handle,
         data: workerData,
         preloads,
-        environmentData
+        environmentData,
+        broadcastChannelHandles: BroadcastChannel.handles
       }
     })
 
@@ -97,6 +99,8 @@ exports.Worker = exports
 
 exports.MessageChannel = MessageChannel
 exports.MessagePort = MessagePort
+
+exports.BroadcastChannel = BroadcastChannel
 
 exports.parentPort = parentPort
 exports.workerData = workerData
