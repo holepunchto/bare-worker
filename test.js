@@ -1,5 +1,5 @@
 const test = require('brittle')
-const Worker = require('.')
+const { Worker, BroadcastChannel } = require('.')
 
 test('basic', (t) => {
   t.plan(3)
@@ -137,4 +137,19 @@ test('dynamic import()', (t) => {
     .on('online', () => t.pass())
     .on('message', (message) => t.is(message, 'Hello worker'))
     .on('exit', (exitCode) => t.is(exitCode, 0))
+})
+
+test('broadcast channel', (t) => {
+  t.plan(10)
+
+  const broadcastChannel = new BroadcastChannel('hello')
+
+  broadcastChannel.onmessage = (event) => {
+    t.is(event.type, 'message')
+    t.is(event.data, 'Hello from worker')
+  }
+
+  t.teardown(() => broadcastChannel.close())
+
+  for (let n = 0; n < 5; n++) new Worker(require.resolve('./test/fixtures/broadcast-channel'))
 })
