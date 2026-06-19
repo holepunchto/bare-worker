@@ -1,0 +1,6 @@
+{
+  "node:worker_threads": {
+    "bare": "bare-worker",
+    "default": "node:worker_threads"
+  }
+}

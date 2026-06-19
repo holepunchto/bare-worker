@@ -1,5 +1,5 @@
 const test = require('brittle')
-const Worker = require('.')
+const Worker = require('.', { with: { imports: './test/fixtures/imports.json' } })
 
 test('basic', (t) => {
   t.plan(3)
@@ -135,6 +135,16 @@ test('dynamic import()', (t) => {
 
   worker
     .on('online', () => t.pass())
+    .on('message', (message) => t.is(message, 'Hello worker'))
+    .on('exit', (exitCode) => t.is(exitCode, 0))
+})
+
+test.solo('import map + dynamic import()', async (t) => {
+  t.plan(2)
+
+  const worker = new Worker(require.resolve('./test/fixtures/import-map-dynamic-import'))
+
+  worker
     .on('message', (message) => t.is(message, 'Hello worker'))
     .on('exit', (exitCode) => t.is(exitCode, 0))
 })
