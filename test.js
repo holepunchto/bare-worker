@@ -112,6 +112,184 @@ test('message port ref, unref and hasRef', (t) => {
   t.is(port.hasRef(), false)
 })
 
+test('broadcast channel from worker to main', (t) => {
+  t.plan(2)
+
+  // Connect the receiving end before spawning the worker so it is already a
+  // peer by the time the worker broadcasts.
+  const channel = new Worker.BroadcastChannel('test')
+
+  channel.on('message', (message) => {
+    t.is(message, 'Hello broadcast')
+    channel.close()
+  })
+
+  const worker = new Worker(require.resolve('./test/fixtures/broadcast'))
+
+  worker.on('exit', (exitCode) => t.is(exitCode, 0))
+})
+
+test('broadcast channel from main to worker', (t) => {
+  t.plan(2)
+
+  const channel = new Worker.BroadcastChannel('test')
+
+  const worker = new Worker(require.resolve('./test/fixtures/broadcast-relay'))
+
+  worker
+    .on('message', (message) => {
+      // The worker echoes back over its parent port once it receives the
+      // broadcast, confirming delivery from the main thread.
+      if (message === 'ready') {
+        channel.postMessage('Hello worker')
+      } else {
+        t.is(message, 'Hello worker')
+        channel.close()
+      }
+    })
+    .on('exit', (exitCode) => t.is(exitCode, 0))
+})
+
+test('broadcast channel from worker to worker', (t) => {
+  t.plan(2)
+
+  const receiver = new Worker(require.resolve('./test/fixtures/broadcast-relay'))
+
+  receiver.on('message', (message) => {
+    // Only spawn the sender once the receiver is connected, so it does not miss
+    // the broadcast.
+    if (message === 'ready') {
+      const sender = new Worker(require.resolve('./test/fixtures/broadcast'))
+
+      sender.on('exit', (exitCode) => t.is(exitCode, 0))
+    } else {
+      t.is(message, 'Hello broadcast')
+    }
+  })
+})
+
+test('broadcast channel reaches nested workers', (t) => {
+  t.plan(1)
+
+  const channel = new Worker.BroadcastChannel('test')
+
+  channel.on('message', (message) => {
+    t.is(message, 'Hello broadcast')
+    channel.close()
+  })
+
+  new Worker(require.resolve('./test/fixtures/broadcast-nested'))
+})
+
+test('broadcast channel does not receive its own messages', (t) => {
+  t.plan(1)
+
+  const a = new Worker.BroadcastChannel('room-self')
+  const b = new Worker.BroadcastChannel('room-self')
+
+  a.on('message', () => t.fail('a received its own message'))
+
+  b.on('message', (message) => {
+    t.is(message, 'ping')
+    a.close()
+    b.close()
+  })
+
+  a.postMessage('ping')
+})
+
+test('broadcast channel ignores messages for other names', (t) => {
+  t.plan(1)
+
+  const a = new Worker.BroadcastChannel('room-names')
+  const b = new Worker.BroadcastChannel('room-names')
+  const other = new Worker.BroadcastChannel('other-name')
+
+  other.on('message', () => t.fail('channel received a message for another name'))
+
+  b.on('message', (message) => {
+    t.is(message, 'ping')
+    a.close()
+    b.close()
+    other.close()
+  })
+
+  a.postMessage('ping')
+})
+
+test('broadcast channel delivers multiple messages in order', (t) => {
+  t.plan(1)
+
+  const a = new Worker.BroadcastChannel('room-order')
+  const b = new Worker.BroadcastChannel('room-order')
+
+  const received = []
+
+  b.on('message', (message) => {
+    received.push(message)
+
+    if (received.length === 3) {
+      t.alike(received, [1, 2, 3])
+      a.close()
+      b.close()
+    }
+  })
+
+  a.postMessage(1)
+  a.postMessage(2)
+  a.postMessage(3)
+})
+
+test('broadcast channel stops receiving after close', (t) => {
+  t.plan(1)
+
+  const a = new Worker.BroadcastChannel('room-closed')
+  const b = new Worker.BroadcastChannel('room-closed')
+  const c = new Worker.BroadcastChannel('room-closed')
+
+  b.close()
+  b.on('message', () => t.fail('closed channel received a message'))
+
+  c.on('message', (message) => {
+    t.is(message, 'ping')
+    a.close()
+    c.close()
+  })
+
+  a.postMessage('ping')
+})
+
+test('broadcast channel coerces its name to a string', (t) => {
+  t.plan(1)
+
+  const channel = new Worker.BroadcastChannel(42)
+
+  t.is(channel.name, '42')
+
+  channel.close()
+})
+
+test('broadcast channel throws when posting after close', (t) => {
+  t.plan(1)
+
+  const channel = new Worker.BroadcastChannel('closed-throw')
+
+  channel.close()
+
+  t.exception(() => channel.postMessage('nope'))
+})
+
+test('broadcast channel can be closed more than once', (t) => {
+  t.plan(1)
+
+  const channel = new Worker.BroadcastChannel('closed-twice')
+
+  channel.close()
+  channel.close()
+
+  t.pass()
+})
+
 test('class identity matches', (t) => {
   t.plan(4)
 
