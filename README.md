@@ -82,6 +82,10 @@ The `MessageChannel` class. See below.
 
 The `MessagePort` class. See below.
 
+#### `Worker.BroadcastChannel`
+
+The `BroadcastChannel` class. See below.
+
 #### `Worker.preload(entry)`
 
 Register the module at `entry` to be loaded in every worker before its own entry module runs. Preloads are inherited by nested workers.
@@ -147,6 +151,40 @@ Emitted for each message received on the port. The message value is passed to th
 #### `event: 'close'`
 
 Emitted when the port has closed.
+
+### `BroadcastChannel`
+
+A named channel for broadcasting messages to every other `BroadcastChannel` with the same name across the entire worker tree, including the main thread and nested workers. `BroadcastChannel` extends `EventEmitter` and follows the semantics of the Web `BroadcastChannel`: a channel never receives its own messages, but every other channel sharing its name does.
+
+```js
+const Worker = require('bare-worker')
+
+const channel = new Worker.BroadcastChannel('updates')
+
+channel.on('message', console.log)
+
+channel.postMessage('Hello everyone')
+```
+
+#### `const channel = new BroadcastChannel(name)`
+
+Create a channel bound to `name`. All channels constructed with the same `name`, in any thread of the worker tree, are connected.
+
+#### `channel.name`
+
+The name the channel is bound to.
+
+#### `channel.postMessage(message)`
+
+Broadcast `message` to every other connected channel sharing this channel's name. The message is cloned; unlike `MessagePort.postMessage()`, transferring is not supported. Throws if the channel has been closed.
+
+#### `channel.close()`
+
+Close the channel, disconnecting it from the others. No further messages will be sent or received.
+
+#### `event: 'message'`
+
+Emitted for each message broadcast to the channel by another channel sharing its name. The message value is passed to the listener.
 
 ## License
 

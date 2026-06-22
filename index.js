@@ -1,12 +1,15 @@
 const Thread = require('bare-thread')
 const Channel = require('bare-channel')
+const Broadcast = require('bare-broadcast-channel')
 const WorkerState = require('./lib/worker-state')
 const MessageChannel = require('./lib/message-channel')
 const MessagePort = require('./lib/message-port')
+const BroadcastChannel = require('./lib/broadcast-channel')
 const constants = require('./lib/constants')
 
 const preloads = new Map()
 
+let broadcast = null
 let environmentData = new Map()
 let parentPort = null
 let workerData = null
@@ -16,10 +19,17 @@ if (WorkerState.parent) {
     preloads.set(entry, source)
   }
 
+  broadcast = WorkerState.parent.broadcast
   parentPort = WorkerState.parent.port
   workerData = WorkerState.parent.data
   environmentData = WorkerState.parent.environmentData
+} else {
+  broadcast = new Broadcast()
 }
+
+// Every named broadcast channel on this thread connects to the same underlying
+// channel, which is shared across the whole worker tree.
+BroadcastChannel._channel = broadcast
 
 const worker = Thread.prepare(require.resolve('./lib/worker-thread'), { shared: true })
 
@@ -37,6 +47,7 @@ module.exports = exports = class Worker extends MessagePort {
       data: {
         source: Thread.prepare(entry, { shared: true }),
         channel: channel.handle,
+        broadcast: broadcast.handle,
         data: workerData,
         preloads,
         environmentData
@@ -97,6 +108,7 @@ exports.Worker = exports
 
 exports.MessageChannel = MessageChannel
 exports.MessagePort = MessagePort
+exports.BroadcastChannel = BroadcastChannel
 
 exports.parentPort = parentPort
 exports.workerData = workerData
