@@ -168,6 +168,33 @@ test('broadcast channel from worker to worker', (t) => {
   })
 })
 
+test('broadcast channel keeps receiving after all peers leave and rejoin', (t) => {
+  t.plan(3)
+
+  // Connect the receiver first so it is already a peer when the workers
+  // broadcast.
+  const channel = new Worker.BroadcastChannel('test')
+
+  let received = 0
+
+  channel.on('message', (message) => {
+    t.is(message, 'Hello broadcast')
+
+    if (++received === 2) channel.close()
+  })
+
+  // The first worker broadcasts and exits, dropping the peer count to zero and
+  // ending the receiver's read loop. The second worker, spawned afterwards,
+  // must still reach the receiver once the read loop restarts on rejoin.
+  const first = new Worker(require.resolve('./test/fixtures/broadcast'))
+
+  first.on('exit', (exitCode) => {
+    t.is(exitCode, 0)
+
+    new Worker(require.resolve('./test/fixtures/broadcast'))
+  })
+})
+
 test('broadcast channel reaches nested workers', (t) => {
   t.plan(1)
 
