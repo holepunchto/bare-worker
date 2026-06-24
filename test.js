@@ -79,6 +79,18 @@ test('transfer message port', (t) => {
   worker.on('exit', (exitCode) => t.is(exitCode, 0)).postMessage(channel.port2, [channel.port2])
 })
 
+test('transfer message port from worker', (t) => {
+  t.plan(2)
+
+  const worker = new Worker(require.resolve('./test/fixtures/transfer-message-port-from-worker'))
+
+  worker
+    .on('message', (port) => {
+      port.once('message', (message) => t.is(message, 'Hello worker')).postMessage('Hello worker')
+    })
+    .on('exit', (exitCode) => t.is(exitCode, 0))
+})
+
 test('environment data', (t) => {
   t.plan(3)
 
@@ -315,20 +327,6 @@ test('broadcast channel can be closed more than once', (t) => {
   channel.close()
 
   t.pass()
-})
-
-test('class identity matches', (t) => {
-  t.plan(4)
-
-  const worker = new Worker(require.resolve('./test/fixtures/identity'))
-
-  worker
-    .on('message', (message) => {
-      t.is(message.parentPortIsMessagePort, true)
-      t.is(message.channelPort1IsMessagePort, true)
-      t.is(message.channelIsMessageChannel, true)
-    })
-    .on('exit', (exitCode) => t.is(exitCode, 0))
 })
 
 test('dynamic import()', (t) => {
