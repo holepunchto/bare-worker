@@ -42,6 +42,10 @@ options = {
 
 Whether the underlying message port has been detached for transfer. See `MessagePort`.
 
+#### `worker.IPC`
+
+A binary duplex stream for exchanging raw bytes with the worker, multiplexed over the same channel used for messages. See `MessagePort` and `IPC`. Within the worker, the other end of this stream is available as `Bare.IPC`, which is the same stream as `Worker.parentPort.IPC`.
+
 #### `await worker.terminate()`
 
 Stop the worker as soon as possible. Returns a `Promise` that resolves with the worker's exit code once it has fully closed. Safe to call multiple times; subsequent calls resolve with the same exit code.
@@ -120,6 +124,10 @@ The endpoint of a message channel. `MessagePort` extends `EventEmitter`. A port 
 
 Whether the port has been detached for transfer to another thread.
 
+#### `port.IPC`
+
+A binary duplex stream multiplexed over the same channel as the port's structured messages. The port is started automatically once the stream's readable side is consumed. See `IPC`.
+
 #### `port.postMessage(message[, transferList])`
 
 Send `message` to the other end of the channel. `transferList` is an optional array of transferable objects, such as other `MessagePort` instances, whose ownership is moved to the receiving thread rather than cloned.
@@ -185,6 +193,26 @@ Close the channel, disconnecting it from the others. No further messages will be
 #### `event: 'message'`
 
 Emitted for each message broadcast to the channel by another channel sharing its name. The message value is passed to the listener.
+
+### `IPC`
+
+A binary duplex stream for exchanging raw bytes between two ends of a message channel, multiplexed over the same channel used for structured messages. `IPC` extends the `bare-stream` `Duplex` stream, so the usual stream API applies; write bytes with `ipc.write()`, read them with the `'data'` event or by iterating the stream, and end the writable side with `ipc.end()`.
+
+An `IPC` stream is obtained from a port's `IPC` property rather than constructed directly. On the parent side it is `worker.IPC`; within the worker the other end is `Bare.IPC`, which is the same stream as `Worker.parentPort.IPC`.
+
+```js
+const Worker = require('bare-worker')
+
+if (Worker.isMainThread) {
+  const worker = new Worker(__filename)
+
+  worker.IPC.on('data', (data) => console.log(data.toString()))
+} else {
+  Bare.IPC.end('Hello worker')
+}
+```
+
+The underlying port stays referenced while the readable side is being consumed, so the thread will not exit while a `'data'` or `'readable'` listener is attached. Inflight writes keep the port referenced until they flush.
 
 ## License
 

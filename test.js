@@ -329,6 +329,31 @@ test('broadcast channel can be closed more than once', (t) => {
   t.pass()
 })
 
+test('ipc from worker', (t) => {
+  t.plan(2)
+
+  const worker = new Worker(require.resolve('./test/fixtures/ipc'))
+
+  worker.IPC.on('data', (data) => t.is(data.toString(), 'Hello worker'))
+
+  worker.on('exit', (exitCode) => t.is(exitCode, 0))
+})
+
+test('ipc echo', (t) => {
+  t.plan(2)
+
+  const worker = new Worker(require.resolve('./test/fixtures/ipc-echo'))
+
+  worker.IPC.on('data', (data) => {
+    t.is(data.toString(), 'Hello worker')
+    worker.IPC.end()
+  })
+
+  worker.on('exit', (exitCode) => t.is(exitCode, 0))
+
+  worker.IPC.write('Hello worker')
+})
+
 test('dynamic import()', (t) => {
   t.plan(3)
 
