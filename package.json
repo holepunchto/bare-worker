@@ -37,6 +37,7 @@
     "bare-channel": "^5.1.5",
     "bare-events": "^2.2.1",
     "bare-module": "^6.4.0",
+    "bare-stream": "^2.13.3",
     "bare-thread": "^1.2.2"
   },
   "devDependencies": {
