@@ -35,7 +35,7 @@ const worker = Thread.prepare(require.resolve('./lib/worker-thread'), { shared: 
 
 module.exports = exports = class Worker extends MessagePort {
   constructor(entry, opts = {}) {
-    const { workerData } = opts
+    const { workerData, argv = [] } = opts
 
     const channel = new Channel({ interfaces: [MessagePort] })
 
@@ -49,6 +49,8 @@ module.exports = exports = class Worker extends MessagePort {
         channel: channel.handle,
         broadcast: broadcast.handle,
         data: workerData,
+        entry: String(entry),
+        argv,
         preloads,
         environmentData
       }

@@ -112,6 +112,22 @@ test('environment data', (t) => {
     .on('exit', (exitCode) => t.is(exitCode, 0))
 })
 
+test('argv', (t) => {
+  t.plan(4)
+
+  const entry = require.resolve('./test/fixtures/argv')
+
+  const worker = new Worker(entry, { argv: ['foo', 42, true] })
+
+  worker
+    .on('message', (argv) => {
+      t.is(argv[0], Bare.argv[0], 'keeps the executable path')
+      t.is(argv[1], entry, 'places the worker entry second')
+      t.alike(argv.slice(2), ['foo', '42', 'true'], 'appends stringified args')
+    })
+    .on('exit', (exitCode) => t.is(exitCode, 0))
+})
+
 test('message port ref, unref and hasRef', (t) => {
   t.plan(2)
 
