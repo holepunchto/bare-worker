@@ -32,11 +32,14 @@ Options include:
 
 ```js
 options = {
-  workerData: null
+  workerData: null,
+  argv: []
 }
 ```
 
 `workerData` is an arbitrary value cloned into the worker and made available there as `Worker.workerData`.
+
+`argv` is a list of values that are stringified and appended to `Bare.argv` within the worker. The worker's `Bare.argv` keeps the executable path, places `entry` second, and appends these values; the parent thread's arguments are not inherited.
 
 #### `worker.detached`
 
