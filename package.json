@@ -41,6 +41,7 @@
     "bare-thread": "^1.2.2"
   },
   "devDependencies": {
+    "bare-os": "^3.9.3",
     "brittle": "^3.2.1",
     "lunte": "^1.8.0",
     "prettier": "^3.4.1",
