@@ -396,3 +396,15 @@ test('import mapping', (t) => {
 
   worker.on('online', () => t.pass()).on('exit', (exitCode) => t.is(exitCode, 0))
 })
+
+test('preload', (t) => {
+  t.plan(2)
+
+  Worker.preload(require.resolve('bare-process/global'))
+
+  const worker = new Worker(require.resolve('./test/fixtures/preload'))
+
+  t.comment(worker)
+
+  worker.on('online', () => t.pass()).on('exit', (exitCode) => t.is(exitCode, 0))
+})

@@ -42,6 +42,7 @@
   },
   "devDependencies": {
     "bare-os": "^3.9.3",
+    "bare-process": "^4.5.1",
     "brittle": "^3.2.1",
     "lunte": "^1.8.0",
     "prettier": "^3.4.1",
