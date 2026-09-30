@@ -1,5 +1,5 @@
 const test = require('brittle')
-const Worker = require('.', { with: { imports: './test/fixtures/imports.json' } })
+const Worker = require('.')
 
 test('basic', (t) => {
   t.plan(3)
@@ -386,7 +386,11 @@ test('dynamic import()', (t) => {
 test('import mapping', (t) => {
   t.plan(2)
 
-  const worker = new Worker(require.resolve('./test/fixtures/import-mapping'))
+  const worker = new Worker(
+    require.resolve('./test/fixtures/import-mapping', {
+      with: { imports: './test/fixtures/imports.json' }
+    })
+  )
 
   t.comment(worker)
 
