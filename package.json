@@ -36,7 +36,7 @@
     "bare-broadcast-channel": "^0.2.0",
     "bare-channel": "^5.1.5",
     "bare-events": "^2.2.1",
-    "bare-module": "^7.0.3",
+    "bare-module": "^7.2.1",
     "bare-stream": "^2.13.3",
     "bare-thread": "^1.2.2"
   },
