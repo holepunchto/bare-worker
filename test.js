@@ -408,3 +408,20 @@ test('preload', (t) => {
 
   worker.on('online', () => t.pass()).on('exit', (exitCode) => t.is(exitCode, 0))
 })
+
+test.solo('dynamic import, external path', (t) => {
+  t.plan(3)
+
+  const path = require.resolve('./test/fixtures/hello')
+
+  const worker = new Worker(require.resolve('./test/fixtures/dynamic-import-external'), {
+    workerData: path
+  })
+
+  t.comment(worker)
+
+  worker
+    .on('online', () => t.pass())
+    .on('message', (message) => t.is(message, 'Hello worker'))
+    .on('exit', (exitCode) => t.is(exitCode, 0))
+})
