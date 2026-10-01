@@ -382,3 +382,29 @@ test('dynamic import()', (t) => {
     .on('message', (message) => t.is(message, 'Hello worker'))
     .on('exit', (exitCode) => t.is(exitCode, 0))
 })
+
+test('import mapping', (t) => {
+  t.plan(2)
+
+  const worker = new Worker(
+    require.resolve('./test/fixtures/import-mapping', {
+      with: { imports: './test/fixtures/imports.json' }
+    })
+  )
+
+  t.comment(worker)
+
+  worker.on('online', () => t.pass()).on('exit', (exitCode) => t.is(exitCode, 0))
+})
+
+test('preload', (t) => {
+  t.plan(2)
+
+  Worker.preload(require.resolve('bare-process/global'))
+
+  const worker = new Worker(require.resolve('./test/fixtures/preload'))
+
+  t.comment(worker)
+
+  worker.on('online', () => t.pass()).on('exit', (exitCode) => t.is(exitCode, 0))
+})
