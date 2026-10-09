@@ -31,7 +31,9 @@ if (WorkerState.parent) {
 // channel, which is shared across the whole worker tree.
 BroadcastChannel._channel = broadcast
 
-const worker = Thread.prepare(require.resolve('./lib/worker-thread'), { shared: true })
+const workerEntry = require.resolve('./lib/worker-thread')
+const workerSource = Thread.prepare(workerEntry, { shared: true })
+const workerMount = Thread.mountFor(workerEntry)
 
 module.exports = exports = class Worker extends MessagePort {
   constructor(entry, opts = {}) {
@@ -43,7 +45,8 @@ module.exports = exports = class Worker extends MessagePort {
 
     this._state = constants.state.REFED
 
-    this._thread = new Thread(worker, {
+    this._thread = new Thread(workerSource, {
+      mount: workerMount,
       data: {
         source: Thread.prepare(entry, { shared: true }),
         channel: channel.handle,
@@ -118,5 +121,11 @@ exports.workerData = workerData
 exports.isMainThread = Thread.isMainThread
 
 exports.preload = function preload(entry) {
-  preloads.set(entry, Thread.prepare(entry, { shared: true }))
+  const source = Thread.prepare(entry, { shared: true })
+
+  preloads.set(entry, source)
+
+  return function () {
+    if (preloads.get(entry) === source) preloads.delete(entry)
+  }
 }

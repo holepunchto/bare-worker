@@ -93,9 +93,11 @@ The `MessagePort` class. See below.
 
 The `BroadcastChannel` class. See below.
 
-#### `Worker.preload(entry)`
+#### `const unpreload = Worker.preload(entry)`
 
 Register the module at `entry` to be loaded in every worker before its own entry module runs. Preloads are inherited by nested workers.
+
+Calling `unpreload()` removes the preload, so workers spawned after it no longer load the module. Workers that are already running are unaffected. If `entry` was preloaded again in the meantime, the newer preload is left in place.
 
 #### `Worker.setEnvironmentData(key[, value])`
 
