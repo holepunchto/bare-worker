@@ -400,11 +400,51 @@ test('import mapping', (t) => {
 test('preload', (t) => {
   t.plan(2)
 
-  Worker.preload(require.resolve('bare-process/global'))
+  t.teardown(Worker.preload(require.resolve('bare-process/global')))
 
   const worker = new Worker(require.resolve('./test/fixtures/preload'))
 
   t.comment(worker)
 
   worker.on('online', () => t.pass()).on('exit', (exitCode) => t.is(exitCode, 0))
+})
+
+test('preload sharing modules with the entry', (t) => {
+  t.plan(2)
+
+  t.teardown(Worker.preload(require.resolve('./test/fixtures/preload-shared/preload')))
+
+  const worker = new Worker(require.resolve('./test/fixtures/preload-shared'))
+
+  worker.on('message', (message) => t.is(message, true)).on('exit', (exitCode) => t.is(exitCode, 0))
+})
+
+test('unpreload', (t) => {
+  t.plan(2)
+
+  const unpreload = Worker.preload(require.resolve('./test/fixtures/preload-shared/preload'))
+
+  unpreload()
+
+  const worker = new Worker(require.resolve('./test/fixtures/preload-shared'))
+
+  worker
+    .on('message', (message) => t.is(message, false))
+    .on('exit', (exitCode) => t.is(exitCode, 0))
+})
+
+test('unpreload after preloading again', (t) => {
+  t.plan(2)
+
+  const entry = require.resolve('./test/fixtures/preload-shared/preload')
+
+  const unpreload = Worker.preload(entry)
+
+  t.teardown(Worker.preload(entry))
+
+  unpreload()
+
+  const worker = new Worker(require.resolve('./test/fixtures/preload-shared'))
+
+  worker.on('message', (message) => t.is(message, true)).on('exit', (exitCode) => t.is(exitCode, 0))
 })
